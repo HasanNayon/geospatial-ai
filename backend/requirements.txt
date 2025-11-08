@@ -1,0 +1,9 @@
+flask
+numpy
+laspy
+lazrs
+flask-cors
+
+# FastAPI server (replaces flask)
+fastapi
+uvicorn[standard]
