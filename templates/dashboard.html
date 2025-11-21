@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Pothole Detection System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 15s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .header-stats {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .header-stat {
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-stat-number {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .header-stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .nav-buttons {
+            margin-top: 20px;
+        }
+        
+        .nav-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-right: 10px;
+            transition: background 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.2);
+        }
+        
+        .stat-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+        
+        .stat-trend {
+            font-size: 0.9em;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        
+        .trend-up {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .trend-down {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 968px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .dashboard-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        
+        .dashboard-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg, #667eea, #764ba2) 1;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-icon {
+            font-size: 1.2em;
+        }
+        
+        #map {
+            height: 500px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 15px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .recent-detections {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .detection-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .detection-item:hover {
+            background: #f9fafb;
+            border-left-color: #667eea;
+            padding-left: 20px;
+        }
+        
+        .detection-type {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+            padding: 4px 8px;
+            border-radius: 5px;
+        }
+        
+        .detection-type.pothole {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .detection-type.crack {
+            background: #fed7aa;
+            color: #ea580c;
+        }
+        
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .severity-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .severity-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .severity-low {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .detection-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .detection-info {
+            flex: 1;
+        }
+        
+        .detection-type {
+            font-weight: bold;
+            color: #667eea;
+            text-transform: capitalize;
+        }
+        
+        .detection-time {
+            color: #999;
+            font-size: 0.9em;
+        }
+        
+        .detection-location {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .detection-confidence {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .legend {
+            margin-top: 15px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📊 Road Damage Analytics Dashboard</h1>
+            <p>Real-time monitoring and analysis for Melbourne & Sydney</p>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-number" id="headerTotal">0</div>
+                    <div class="header-stat-label">Total Issues</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-number" id="headerToday">0</div>
+                    <div class="header-stat-label">Today</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-number" id="headerCities">2</div>
+                    <div class="header-stat-label">Cities</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <a href="/" class="nav-btn">🏠 Home</a>
+                <a href="/dashcam" class="nav-btn">📹 Live Camera</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🕳️</div>
+            <div class="stat-number" id="totalDetections">0</div>
+            <div class="stat-label">Total Detections</div>
+            <div class="stat-trend trend-up" id="trendTotal">↑ 12% this week</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🚧</div>
+            <div class="stat-number" id="totalPotholes">0</div>
+            <div class="stat-label">Potholes Detected</div>
+            <div class="stat-trend trend-down" id="trendPotholes">↓ 5% vs last week</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-number" id="totalCracks">0</div>
+            <div class="stat-label">Cracks Detected</div>
+            <div class="stat-trend trend-up" id="trendCracks">↑ 18% this week</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-number" id="avgConfidence">0%</div>
+            <div class="stat-label">Avg Confidence</div>
+            <div class="stat-trend trend-up" id="trendConfidence">High Accuracy</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">⚠️</div>
+            <div class="stat-number" id="highSeverity">0</div>
+            <div class="stat-label">High Severity</div>
+            <div class="stat-trend trend-down" id="trendSeverity">Needs attention</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">📍</div>
+            <div class="stat-number" id="locationsCount">0</div>
+            <div class="stat-label">Unique Locations</div>
+            <div class="stat-trend trend-up" id="trendLocations">Across 2 cities</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-card full-width">
+        <h2><span class="card-icon">🗺️</span> Interactive Detection Map - Melbourne & Sydney</h2>
+        <div class="filter-section">
+            <button class="filter-btn active" onclick="filterMap('all')">🔵 All Detections</button>
+            <button class="filter-btn" onclick="filterMap('pothole')">🚧 Potholes Only</button>
+            <button class="filter-btn" onclick="filterMap('crack')">⚡ Cracks Only</button>
+            <span style="margin-left: auto; color: #666; font-size: 1.05em;">
+                📍 Showing: <strong id="markerCount" style="color: #667eea; font-size: 1.2em;">0</strong> locations
+            </span>
+        </div>
+        <div id="map"></div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF0000;"></div>
+                <span><strong>Pothole</strong> - Severe road damage</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FFA500;"></div>
+                <span><strong>Crack</strong> - Surface deterioration</span>
+            </div>
+            <div class="legend-item" style="margin-left: auto;">
+                <span style="color: #666;">💡 Click markers for details & image</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h2><span class="card-icon">📊</span> Detection Trends (Last 30 Days)</h2>
+            <div class="chart-container">
+                <canvas id="trendsChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h2>🎯 Detection Types</h2>
+            <div class="chart-container">
+                <canvas id="typesChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="dashboard-card">
+        <h2>🕐 Recent Detections</h2>
+        <div class="recent-detections" id="recentDetections">
+            <div class="loading">Loading detections...</div>
+        </div>
+    </div>
+    
+    <script>
+        // Detection data from server
+        const detections = {{ detections | tojson }};
+        
+        let map;
+        let markers = [];
+        let currentFilter = 'all';
+        
+        // Initialize dashboard
+        function initDashboard() {
+            calculateStats();
+            initMap();
+            initCharts();
+            displayRecentDetections();
+        }
+        
+        // Calculate statistics
+        function calculateStats() {
+            const total = detections.length;
+            const potholes = detections.filter(d => d.Detection_Type === 'pothole').length;
+            const cracks = detections.filter(d => d.Detection_Type === 'crack').length;
+            
+            // Calculate average confidence
+            const totalConfidence = detections.reduce((sum, d) => sum + parseFloat(d.Confidence || 0), 0);
+            const avgConf = total > 0 ? (totalConfidence / total * 100).toFixed(1) : 0;
+            
+            // High severity (confidence > 70%)
+            const highSeverity = detections.filter(d => parseFloat(d.Confidence) > 0.7).length;
+            
+            // Unique locations (approximate based on rounded coordinates)
+            const uniqueLocations = new Set(
+                detections.map(d => `${parseFloat(d.Latitude).toFixed(3)},${parseFloat(d.Longitude).toFixed(3)}`)
+            ).size;
+            
+            // Today's detections
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = detections.filter(d => d.Timestamp.startsWith(today)).length;
+            
+            // Update main stats
+            document.getElementById('totalDetections').textContent = total.toLocaleString();
+            document.getElementById('totalPotholes').textContent = potholes.toLocaleString();
+            document.getElementById('totalCracks').textContent = cracks.toLocaleString();
+            document.getElementById('avgConfidence').textContent = avgConf + '%';
+            document.getElementById('highSeverity').textContent = highSeverity.toLocaleString();
+            document.getElementById('locationsCount').textContent = uniqueLocations.toLocaleString();
+            
+            // Update header stats
+            document.getElementById('headerTotal').textContent = total.toLocaleString();
+            document.getElementById('headerToday').textContent = todayCount.toLocaleString();
+        }
+        
+        // Initialize Google Map
+        function initMap() {
+            try {
+                // Check if Google Maps is loaded
+                if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+                    throw new Error('Google Maps API not loaded');
+                }
+                
+                // Melbourne coordinates
+                const melbourne = { lat: -37.8136, lng: 144.9631 };
+                
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 11,
+                    center: melbourne,
+                    mapTypeControl: true,
+                    streetViewControl: true,
+                    fullscreenControl: true,
+                    styles: [
+                        {
+                            featureType: "poi",
+                            elementType: "labels",
+                            stylers: [{ visibility: "off" }]
+                        }
+                    ]
+                });
+                
+                // Add markers for all detections
+                addMarkers();
+                
+                console.log('Google Maps initialized successfully');
+            } catch (error) {
+                console.error('Error initializing Google Maps:', error);
+                document.getElementById('map').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #fee2e2; color: #991b1b; padding: 20px; text-align: center; flex-direction: column;">
+                        <div style="max-width: 500px;">
+                            <h3 style="margin-bottom: 15px;">🗺️ Map Initialization Error</h3>
+                            <p style="margin-bottom: 10px;"><strong>Error:</strong> ${error.message}</p>
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: left;">
+                                <p style="margin: 8px 0;"><strong>To fix this:</strong></p>
+                                <ol style="margin: 10px 0 10px 20px;">
+                                    <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                                    <li>Enable "Maps JavaScript API"</li>
+                                    <li>Set up billing</li>
+                                    <li>Remove HTTP referrer restrictions (or add localhost)</li>
+                                    <li>Refresh this page</li>
+                                </ol>
+                                <p style="margin-top: 10px; font-size: 12px; color: #666;">API Key: AIzaSyCB0N4qYPJY5gfP3rnKzHa0RE8pkEXKau0</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Add markers to map
+        function addMarkers() {
+            // Clear existing markers
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            const filteredDetections = currentFilter === 'all' 
+                ? detections 
+                : detections.filter(d => d.Detection_Type === currentFilter);
+            
+            filteredDetections.forEach(detection => {
+                const lat = parseFloat(detection.Latitude);
+                const lng = parseFloat(detection.Longitude);
+                
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    const marker = new google.maps.Marker({
+                        position: { lat: lat, lng: lng },
+                        map: map,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 8,
+                            fillColor: detection.Detection_Type === 'pothole' ? '#FF0000' : '#FFA500',
+                            fillOpacity: 0.8,
+                            strokeColor: '#FFFFFF',
+                            strokeWeight: 2
+                        },
+                        title: `${detection.Detection_Type.toUpperCase()} (${(parseFloat(detection.Confidence) * 100).toFixed(0)}%)`
+                    });
+                    
+                    const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+                    const imageUrl = `/${detection.Image_Path}`;
+                    
+                    const infoWindow = new google.maps.InfoWindow({
+                        maxWidth: 400,
+                        content: `
+                            <div style="padding: 10px; width: 350px; font-family: Arial, sans-serif;">
+                                <h3 style="margin: 0 0 12px 0; color: ${detection.Detection_Type === 'pothole' ? '#dc2626' : '#ea580c'}; font-size: 16px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+                                    ${detection.Detection_Type.toUpperCase()}
+                                </h3>
+                                
+                                <!-- Image -->
+                                <div style="margin: 10px 0; text-align: center; background: #f3f4f6; padding: 5px; border-radius: 8px;">
+                                    <img src="${imageUrl}" 
+                                         style="width: 100%; max-width: 340px; height: 200px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); cursor: pointer; display: block;"
+                                         onerror="this.onerror=null; this.style.height='120px'; this.src='https://via.placeholder.com/340x200/667eea/ffffff?text=Image+Loading+Failed'; console.error('Failed to load: ${imageUrl}');"
+                                         alt="${detection.Detection_Type}"
+                                         onclick="window.open('${imageUrl}', '_blank')"
+                                         loading="lazy">
+                                    <small style="color: #6b7280; font-size: 10px; display: block; margin-top: 4px;">Click image to view full size</small>
+                                </div>
+                                
+                                <!-- Information -->
+                                <div style="margin-top: 12px; background: #f9fafb; padding: 10px; border-radius: 6px;">
+                                    <p style="margin: 6px 0; font-size: 13px;">
+                                        <strong style="color: #374151;">📅 Time:</strong> 
+                                        <span style="color: #6b7280;">${detection.Timestamp}</span>
+                                    </p>
+                                    <p style="margin: 6px 0; font-size: 13px;">
+                                        <strong style="color: #374151;">🎯 Confidence:</strong> 
+                                        <span style="color: #059669; font-weight: 600;">${(parseFloat(detection.Confidence) * 100).toFixed(1)}%</span>
+                                    </p>
+                                    <p style="margin: 6px 0; font-size: 13px;">
+                                        <strong style="color: #374151;">📍 Location:</strong> 
+                                        <span style="color: #6b7280;">${lat.toFixed(6)}, ${lng.toFixed(6)}</span>
+                                    </p>
+                                </div>
+                                
+                                <!-- Google Maps Button -->
+                                <div style="margin-top: 12px;">
+                                    <a href="${googleMapsUrl}" target="_blank" 
+                                       style="display: block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; box-shadow: 0 2px 4px rgba(102, 126, 234, 0.4);">
+                                        🗺️ Open in Google Maps
+                                    </a>
+                                </div>
+                            </div>
+                        `
+                    });
+                    
+                    marker.addListener('click', () => {
+                        infoWindow.open(map, marker);
+                    });
+                    
+                    markers.push(marker);
+                }
+            });
+            
+            document.getElementById('markerCount').textContent = markers.length;
+        }
+        
+        // Filter map markers
+        function filterMap(type) {
+            currentFilter = type;
+            
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            addMarkers();
+        }
+        
+        // Initialize charts
+        function initCharts() {
+            initTrendsChart();
+            initTypesChart();
+        }
+        
+        // Trends chart (detections over time)
+        function initTrendsChart() {
+            // Group detections by date
+            const dateGroups = {};
+            detections.forEach(d => {
+                const date = d.Timestamp.split(' ')[0];
+                if (!dateGroups[date]) {
+                    dateGroups[date] = { pothole: 0, crack: 0 };
+                }
+                dateGroups[date][d.Detection_Type]++;
+            });
+            
+            // Sort dates and get last 30 days
+            const sortedDates = Object.keys(dateGroups).sort().slice(-30);
+            const potholeData = sortedDates.map(date => dateGroups[date].pothole);
+            const crackData = sortedDates.map(date => dateGroups[date].crack);
+            
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedDates.map(date => {
+                        const d = new Date(date);
+                        return `${d.getMonth() + 1}/${d.getDate()}`;
+                    }),
+                    datasets: [
+                        {
+                            label: 'Potholes',
+                            data: potholeData,
+                            borderColor: '#FF0000',
+                            backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Cracks',
+                            data: crackData,
+                            borderColor: '#FFA500',
+                            backgroundColor: 'rgba(255, 165, 0, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Types chart (pie chart)
+        function initTypesChart() {
+            const potholes = detections.filter(d => d.Detection_Type === 'pothole').length;
+            const cracks = detections.filter(d => d.Detection_Type === 'crack').length;
+            
+            const ctx = document.getElementById('typesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Potholes', 'Cracks'],
+                    datasets: [{
+                        data: [potholes, cracks],
+                        backgroundColor: ['#FF0000', '#FFA500'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Display recent detections
+        function displayRecentDetections() {
+            const container = document.getElementById('recentDetections');
+            const recent = detections.slice(-20).reverse(); // Last 20, newest first
+            
+            if (recent.length === 0) {
+                container.innerHTML = '<div class="loading">No detections found</div>';
+                return;
+            }
+            
+            container.innerHTML = recent.map(d => {
+                const confidence = parseFloat(d.Confidence) * 100;
+                const severityClass = confidence > 70 ? 'severity-high' : confidence > 50 ? 'severity-medium' : 'severity-low';
+                const severityLabel = confidence > 70 ? 'High' : confidence > 50 ? 'Medium' : 'Low';
+                
+                return `
+                <div class="detection-item">
+                    <div class="detection-info">
+                        <div>
+                            <span class="detection-type ${d.Detection_Type}">${d.Detection_Type}</span>
+                            <span class="severity-badge ${severityClass}">${severityLabel} Severity</span>
+                        </div>
+                        <div class="detection-time">🕐 ${d.Timestamp}</div>
+                        <div class="detection-location">📍 ${parseFloat(d.Latitude).toFixed(4)}, ${parseFloat(d.Longitude).toFixed(4)}</div>
+                    </div>
+                    <div class="detection-confidence">${confidence.toFixed(0)}%</div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        // Initialize everything when page loads
+        function loadGoogleMaps() {
+            const script = document.createElement('script');
+            script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCB0N4qYPJY5gfP3rnKzHa0RE8pkEXKau0&callback=initDashboard';
+            script.async = true;
+            script.defer = true;
+            script.onerror = function() {
+                console.error('Google Maps failed to load');
+                document.getElementById('map').innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #fee; color: #c00; padding: 20px; text-align: center;">
+                        <div>
+                            <h3>⚠️ Google Maps API Error</h3>
+                            <p>Please check:</p>
+                            <ul style="text-align: left; display: inline-block;">
+                                <li>API key is valid</li>
+                                <li>Maps JavaScript API is enabled</li>
+                                <li>Billing is set up</li>
+                                <li>No domain restrictions</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            };
+            document.head.appendChild(script);
+        }
+        
+        window.onload = loadGoogleMaps;
+    </script>
+</body>
+</html>

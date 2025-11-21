@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Records</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        header h1 {
+            color: #333;
+            font-size: 1.8em;
+        }
+        
+        .back-btn {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        .content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            opacity: 0.9;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        thead {
+            background: #667eea;
+            color: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            font-weight: 600;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .location-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .location-link:hover {
+            text-decoration: underline;
+        }
+        
+        .confidence {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .confidence.high {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .confidence.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .confidence.low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .export-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .export-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Detection Records</h1>
+            <a href="/" class="back-btn">← Back to Home</a>
+        </header>
+        
+        <div class="content">
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>{{ detections|length }}</h3>
+                    <p>Total Detections</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="todayCount">0</h3>
+                    <p>Today's Detections</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="avgConfidence">0%</h3>
+                    <p>Avg Confidence</p>
+                </div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search by date, location, or type...">
+                <button class="export-btn" onclick="exportToCSV()">📥 Export CSV</button>
+            </div>
+            
+            {% if detections %}
+            <div class="table-container">
+                <table id="detectionsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Timestamp</th>
+                            <th>Location</th>
+                            <th>Detection Type</th>
+                            <th>Confidence</th>
+                            <th>Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for detection in detections %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ detection.Timestamp }}</td>
+                            <td>
+                                {% if detection.Latitude != 'N/A' and detection.Longitude != 'N/A' %}
+                                <a href="https://www.google.com/maps?q={{ detection.Latitude }},{{ detection.Longitude }}" 
+                                   target="_blank" class="location-link">
+                                    {{ detection.Latitude }}, {{ detection.Longitude }}
+                                </a>
+                                {% else %}
+                                N/A
+                                {% endif %}
+                            </td>
+                            <td>{{ detection.Detection_Type }}</td>
+                            <td>
+                                {% set conf = (detection.Confidence|float * 100)|round(1) %}
+                                {% if conf >= 70 %}
+                                <span class="confidence high">{{ conf }}%</span>
+                                {% elif conf >= 50 %}
+                                <span class="confidence medium">{{ conf }}%</span>
+                                {% else %}
+                                <span class="confidence low">{{ conf }}%</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('static', filename=detection.Image_Path.replace('static/', '')) }}" 
+                                   target="_blank">View Image</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="no-data">
+                <p>📭 No detections recorded yet.</p>
+                <p style="margin-top: 10px; font-size: 0.9em;">Start using the dashcam to capture potholes!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        // Calculate statistics
+        function calculateStats() {
+            const rows = document.querySelectorAll('#detectionsTable tbody tr');
+            const today = new Date().toISOString().split('T')[0];
+            let todayCount = 0;
+            let totalConfidence = 0;
+            
+            rows.forEach(row => {
+                const timestamp = row.cells[1].textContent;
+                const confidence = parseFloat(row.cells[4].textContent);
+                
+                if (timestamp.startsWith(today)) {
+                    todayCount++;
+                }
+                
+                totalConfidence += confidence;
+            });
+            
+            document.getElementById('todayCount').textContent = todayCount;
+            
+            if (rows.length > 0) {
+                const avgConf = (totalConfidence / rows.length).toFixed(1);
+                document.getElementById('avgConfidence').textContent = avgConf + '%';
+            }
+        }
+        
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#detectionsTable tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+        
+        // Export to CSV
+        function exportToCSV() {
+            window.location.href = '/static/../pothole_detections.csv';
+        }
+        
+        // Initialize
+        if (document.getElementById('detectionsTable')) {
+            calculateStats();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pothole Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .menu-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .menu-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .menu-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        
+        .upload-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .file-label {
+            display: block;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .file-label:hover {
+            background: #5568d3;
+        }
+        
+        button {
+            width: 100%;
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #653a8a;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .file-name {
+            text-align: center;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛣️ Pothole Detection System</h1>
+        <p class="subtitle">AI-Powered Road Safety Solution</p>
+        
+        <div class="menu-grid">
+            <a href="/dashboard" class="menu-card">
+                <div class="icon">📊</div>
+                <h2>Dashboard</h2>
+                <p>Analytics, maps, and detection insights</p>
+            </a>
+            
+            <a href="/dashcam" class="menu-card">
+                <div class="icon">📹</div>
+                <h2>Camera</h2>
+                <p>Real-time pothole detection with GPS</p>
+            </a>
+        </div>
+        
+        <div class="upload-section">
+            <h2>Upload Image for Detection</h2>
+            <div class="file-name" id="locationStatus" style="color: #667eea; margin-bottom: 15px;">📍 Getting location...</div>
+            <form action="/predict" method="POST" enctype="multipart/form-data" id="uploadForm">
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+                <label for="imageInput" class="file-label">
+                    📁 Choose Image File
+                </label>
+                <input type="file" name="image" id="imageInput" accept="image/*" required>
+                <div class="file-name" id="fileName">No file chosen</div>
+                <button type="submit" id="submitBtn" disabled>🔍 Detect Potholes</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('imageInput');
+        const fileName = document.getElementById('fileName');
+        const submitBtn = document.getElementById('submitBtn');
+        const locationStatus = document.getElementById('locationStatus');
+        const latInput = document.getElementById('latitude');
+        const lonInput = document.getElementById('longitude');
+        
+        // Get user location on page load
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    latInput.value = position.coords.latitude;
+                    lonInput.value = position.coords.longitude;
+                    locationStatus.innerHTML = `📍 Location: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
+                    locationStatus.style.color = '#16a34a';
+                },
+                function(error) {
+                    // Fallback to IP-based location
+                    fetch('https://ipapi.co/json/')
+                        .then(response => response.json())
+                        .then(data => {
+                            latInput.value = data.latitude;
+                            lonInput.value = data.longitude;
+                            locationStatus.innerHTML = `📍 Location: ${data.city}, ${data.country} (Approximate)`;
+                            locationStatus.style.color = '#d97706';
+                        })
+                        .catch(() => {
+                            locationStatus.innerHTML = '⚠️ Location unavailable (will use default)';
+                            locationStatus.style.color = '#dc2626';
+                        });
+                }
+            );
+        } else {
+            locationStatus.innerHTML = '⚠️ Geolocation not supported';
+            locationStatus.style.color = '#dc2626';
+        }
+        
+        fileInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                fileName.textContent = this.files[0].name;
+                submitBtn.disabled = false;
+            } else {
+                fileName.textContent = 'No file chosen';
+                submitBtn.disabled = true;
+            }
+        });
+        
+        // Show loading state on submit
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            submitBtn.textContent = '🔄 Processing...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>

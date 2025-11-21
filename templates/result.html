@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection Result</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .info-value {
+            color: #333;
+        }
+        
+        .success-badge {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .image-box {
+            text-align: center;
+        }
+        
+        .image-box h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .image-box img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .back-btn {
+            display: block;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        @media (max-width: 768px) {
+            .results {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Detection Result</h1>
+        
+        {% if detection_saved %}
+        <div style="text-align: center; margin-bottom: 20px;">
+            <span class="success-badge">✅ Detection Saved with Location</span>
+        </div>
+        {% endif %}
+        
+        <div class="info-box">
+            <h3>📍 Detection Information</h3>
+            {% if latitude and longitude and latitude != '0.0' %}
+            <div class="info-item">
+                <span class="info-label">🌍 GPS Location:</span>
+                <span class="info-value">{{ latitude }}, {{ longitude }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🗺️ View on Map:</span>
+                <span class="info-value">
+                    <a href="https://www.google.com/maps?q={{ latitude }},{{ longitude }}" target="_blank" 
+                       style="color: #667eea; text-decoration: none; font-weight: 600;">
+                        Open in Google Maps →
+                    </a>
+                </span>
+            </div>
+            {% else %}
+            <div class="info-item">
+                <span class="info-label">📍 Location:</span>
+                <span class="info-value" style="color: #d97706;">Location not available</span>
+            </div>
+            {% endif %}
+            <div class="info-item">
+                <span class="info-label">📅 Detection Time:</span>
+                <span class="info-value">{{ current_time or 'Just now' }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📁 Image Name:</span>
+                <span class="info-value">{{ input_image }}</span>
+            </div>
+        </div>
+        
+        <div class="results">
+            <div class="image-box">
+                <h2>📤 Uploaded Image</h2>
+                <img src="/static/uploads/{{ input_image }}" alt="Uploaded Image">
+            </div>
+            
+            <div class="image-box">
+                <h2>✨ Detected Result</h2>
+                <img src="/static/results/output/{{ output_image }}" alt="Detection Result">
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <a href="/" class="back-btn">← Back to Home</a>
+            <a href="/dashboard" class="back-btn" style="background: #764ba2;">📊 View Dashboard</a>
+        </div>
+    </div>
+</body>
+</html>

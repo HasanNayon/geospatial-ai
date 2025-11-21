@@ -286,7 +286,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 For issues, questions, or suggestions:
 - Open an issue on GitHub
-- Email: nayon8828@gmail.com
+- Email: your.email@example.com
 - Documentation: [Wiki](https://github.com/yourusername/pothole-detection/wiki)
 
 ## 🚧 Roadmap
@@ -316,4 +316,3 @@ For issues, questions, or suggestions:
 **Made with ❤️ for safer roads**
 
 *Last Updated: November 21, 2025*
-# geospatial-ai
