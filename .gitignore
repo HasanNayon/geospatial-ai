@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Flask
+instance/
+.webassets-cache
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+static/uploads/*
+static/results/*
+static/dashcam_captures/*
+!static/uploads/.gitkeep
+!static/results/.gitkeep
+!static/dashcam_captures/.gitkeep
+
+# Model (too large for git)
+# best.pt
+
+# CSV logs (too large)
+# pothole_detections.csv
+# dashboard_detections.csv
+
+# Test files
+test_*.py
+tested.mp4
+test_image.jpg
+dashboard_detections_old.csv
+generate_dashboard_csv.py

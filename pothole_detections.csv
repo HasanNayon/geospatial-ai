@@ -1,0 +1,6 @@
+Timestamp,Image_Path,Latitude,Longitude,Detection_Type,Confidence
+2025-11-21 19:28:22,static/dashcam_captures\pothole_20251121_192822.jpg,,,pothole,0.34630391001701355
+2025-11-21 19:28:27,static/dashcam_captures\pothole_20251121_192826.jpg,,,pothole,0.37820062041282654
+2025-11-21 20:16:58,static/dashcam_captures\pothole_20251121_201658.jpg,1.36795,103.981,pothole,0.67
+2025-11-21 20:17:08,static/dashcam_captures\pothole_20251121_201708.jpg,1.36795,103.981,pothole,0.44
+2025-11-21 23:11:38,static/uploads/pothole_3.jpg,34.82487,113.5448324,pothole,0.875035285949707
