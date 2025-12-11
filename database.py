@@ -1,4 +1,6 @@
 # Database operations for detections and repairs CSV files
+# Handles all CSV read/write operations for the Pothole Detection System
+# Author: Hasan Nayon
 
 import csv
 import os
