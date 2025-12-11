@@ -1,4 +1,7 @@
 # Main Flask Application for Pothole Detection System
+# Real-time road damage detection with YOLOv8, GPS tracking, and AI assistant
+# Author: Hasan Nayon
+# Repository: https://github.com/HasanNayon/geospatial-ai
 
 from flask import Flask, render_template, request, send_from_directory, Response, jsonify
 from flask_socketio import SocketIO, emit
