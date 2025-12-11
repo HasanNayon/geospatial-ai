@@ -1,0 +1,24 @@
+# Core Dependencies
+flask==3.1.0
+flask-socketio==5.3.6
+gunicorn==21.2.0
+gevent==24.2.1
+gevent-websocket==0.10.1
+
+# AI/ML
+ultralytics==8.0.196
+opencv-python-headless==4.8.1.78
+torch==2.1.0
+torchvision==0.16.0
+
+# Data Processing
+pandas==2.1.3
+numpy==1.26.2
+
+# API & Requests
+requests==2.31.0
+
+# WebSocket support
+python-socketio==5.10.0
+python-engineio==4.8.1
+eventlet==0.34.2

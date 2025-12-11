@@ -6,12 +6,14 @@ import os
 
 # Groq API Configuration
 # Get your API key from: https://console.groq.com/keys
-GROQ_API_KEY = "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"
+# For production, use environment variable: os.environ.get('GROQ_API_KEY')
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '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')
 GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
 # Flask Configuration
-SECRET_KEY = 'pothole-detection-secret'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'pothole-detection-secret')
+DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
 
 # File paths
 UPLOAD_FOLDER = "static/uploads"
