@@ -52,7 +52,19 @@ def build_system_prompt(stats, detections, repairs):
     """Build the system prompt with current data context"""
     high_risk_samples = [d for d in detections if d['confidence'] >= 0.8][:5]
     
-    return f"""You are an intelligent AI assistant for a Pothole Detection System. You can have natural conversations and help users with any questions about road damage detection and repairs.
+    return f"""You are a specialized AI assistant ONLY for a Pothole Detection System. You MUST only answer questions related to:
+- Road damage (potholes, cracks)
+- This detection system and its features
+- Repair tracking and management
+- Route planning for repairs
+- Statistics and reports about detections
+
+## STRICT RULES - VERY IMPORTANT:
+1. **NEVER answer questions unrelated to road damage or this system**
+2. If user asks about celebrities, sports, movies, general knowledge, coding help, math, science, history, or ANY topic not related to potholes/road damage - politely decline
+3. For off-topic questions, respond: "I'm sorry, I can only help with questions about the Pothole Detection System, road damage, repairs, and related topics. How can I assist you with road damage detection today?"
+4. Do NOT provide information about people, places, events, or topics outside road infrastructure
+5. Even if user insists, do NOT answer off-topic questions
 
 ## Current System Data:
 - Total Active Defects: {stats['total_detections']}
@@ -70,25 +82,22 @@ def build_system_prompt(stats, detections, repairs):
 ## Recent Repairs:
 {chr(10).join([f"- {r['type']} fixed on {r['repair_date']}" for r in repairs[-5:]]) if repairs else "No repairs yet"}
 
-## Your Capabilities:
-1. **Answer ANY question** about the system, road damage, potholes, cracks, etc.
-2. **Generate reports** - summarize data, create analysis
+## Your Capabilities (ONLY these topics):
+1. **Answer questions** about the system, road damage, potholes, cracks
+2. **Generate reports** - summarize detection data, create analysis
 3. **Find repair routes** - calculate shortest path to fix issues
 4. **Filter by risk** - show high/medium/low risk defects
 5. **View specific detections** - show details of specific pothole/crack
 6. **Track repairs** - help update and track fixed issues
 7. **Provide insights** - analyze patterns, suggest priorities
 
-## Important Instructions:
-- Be conversational and helpful, not robotic
-- If user asks something unclear, ask for clarification
-- If user asks about things outside road damage, politely redirect
-- Use markdown formatting for better readability
-- When user wants to fix something, guide them through the process
+## Response Style:
+- Be conversational and helpful
+- Use markdown formatting
 - Be concise but informative
-- If asked "how are you" or casual chat, respond naturally then offer help
+- For greetings like "hello" or "how are you", respond briefly then offer help with the system
 
-Remember: You're a smart assistant, not a keyword-matcher. Understand the user's INTENT, not just keywords."""
+Remember: You are ONLY a road damage assistant. Politely refuse ALL off-topic questions."""
 
 def detect_intent_and_content(user_message, detections, repairs, stats):
     """Detect user intent and prepare special content for UI display"""
@@ -259,11 +268,85 @@ def generate_fallback_response(user_message, stats):
     
     return fallback
 
+def is_off_topic(message):
+    """Check if message is off-topic (not related to road damage/potholes)"""
+    message_lower = message.lower()
+    
+    # Keywords that indicate on-topic questions
+    on_topic_keywords = [
+        'pothole', 'crack', 'road', 'damage', 'detection', 'detect', 'repair', 
+        'fix', 'fixed', 'report', 'path', 'route', 'risk', 'high', 'medium', 'low',
+        'dashboard', 'map', 'location', 'gps', 'camera', 'dashcam', 'capture',
+        'statistic', 'stats', 'count', 'total', 'how many', 'show', 'list', 'view',
+        'defect', 'issue', 'problem', 'severity', 'confidence', 'priority',
+        'technician', 'update', 'status', 'help', 'hello', 'hi', 'hey', 'thank',
+        'what can you', 'how are you', 'system', 'assistant', 'feature'
+    ]
+    
+    # Check if message contains on-topic keywords
+    for keyword in on_topic_keywords:
+        if keyword in message_lower:
+            return False
+    
+    # Off-topic patterns (celebrities, general knowledge, etc.)
+    off_topic_patterns = [
+        r'\bwho is\b', r'\bwho was\b', r'\bwho are\b',
+        r'\bwhat is\b(?!.*(?:pothole|crack|road|damage|detection|repair|risk|system))',
+        r'\btell me about\b(?!.*(?:pothole|crack|road|damage|detection|repair))',
+        r'\bexplain\b(?!.*(?:pothole|crack|road|damage|detection|repair|system))',
+        r'\bwrite\b(?!.*(?:report|summary))', r'\bcode\b', r'\bprogram\b',
+        r'\bcelebrit', r'\bfootball\b', r'\bsoccer\b', r'\bcricket\b', r'\bsport\b',
+        r'\bmovie\b', r'\bfilm\b', r'\bsong\b', r'\bmusic\b', r'\bactor\b', r'\bsinger\b',
+        r'\bpresident\b', r'\bminister\b', r'\bpolitician\b', r'\bking\b', r'\bqueen\b',
+        r'\bcountry\b(?!.*road)', r'\bcapital\b', r'\bpopulation\b',
+        r'\brecipe\b', r'\bcook\b', r'\bfood\b', r'\brestaurant\b',
+        r'\bgame\b', r'\bplay\b(?!.*video)', r'\bscore\b',
+        r'\bweather\b', r'\btemperature\b', r'\bclimate\b',
+        r'\bmath\b', r'\bcalculate\b(?!.*distance|path)', r'\bequation\b',
+        r'\bhistory\b(?!.*detection)', r'\bwar\b', r'\bbattle\b',
+        r'\bscience\b', r'\bphysics\b', r'\bchemistry\b', r'\bbiology\b',
+        r'\bstory\b', r'\bpoem\b', r'\bjoke\b', r'\bfunny\b',
+        r'\bmessi\b', r'\bronaldo\b', r'\bneymar\b', r'\btrump\b', r'\bobama\b', r'\bbiden\b'
+    ]
+    
+    for pattern in off_topic_patterns:
+        if re.search(pattern, message_lower):
+            return True
+    
+    return False
+
+def get_off_topic_response():
+    """Return a polite response for off-topic questions"""
+    return """I'm sorry, I can only help with questions about the **Pothole Detection System** and road damage topics. 🚧
+
+**I can help you with:**
+- 📊 Detection statistics and reports
+- 🗺️ Finding repair routes
+- ⚠️ Viewing high/medium/low risk detections
+- 🔧 Tracking repairs and fixes
+- 📍 Viewing specific potholes or cracks
+
+**Try asking:**
+- *"How many potholes are there?"*
+- *"Show me high risk detections"*
+- *"Generate a report"*
+- *"Plan a repair route"*
+
+How can I help you with road damage detection today?"""
+
 def process_chat_message(user_message, history):
     """Main function to process chat messages"""
     stats = get_detection_stats()
     detections = get_all_detections()
     repairs = get_all_repairs()
+    
+    # Check for off-topic questions first
+    if is_off_topic(user_message):
+        return {
+            'success': True,
+            'response': get_off_topic_response(),
+            'content': None
+        }
     
     # Detect intent and prepare UI content
     content = detect_intent_and_content(user_message, detections, repairs, stats)
