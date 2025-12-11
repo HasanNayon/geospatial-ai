@@ -1,0 +1,4 @@
+ID,Timestamp,Image_Path,Latitude,Longitude,Detection_Type,Confidence,Repair_Date,Technician,Notes
+15,2025-09-08 14:54:37,Dataset/pothole/pothole_1015.jpg,-37.903068,144.937959,pothole,0.7,2025-12-12 02:32:19,jon,fi
+1,2025-10-26 11:33:19,Dataset/pothole/pothole_1050.jpg,-37.857395,144.976213,pothole,0.95,2025-12-12 03:08:15,,Marked as fixed via AI Assistant
+13,2025-10-17 03:33:12,Dataset/pothole/pothole_888.jpg,-37.732553,145.008413,pothole,0.95,2025-12-12 03:10:18,jon,3rd 
