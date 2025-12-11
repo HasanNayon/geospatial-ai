@@ -1,4 +1,6 @@
 # Configuration settings for Pothole Detection System
+# Author: Hasan Nayon
+# Repository: https://github.com/HasanNayon/geospatial-ai
 
 import os
 
