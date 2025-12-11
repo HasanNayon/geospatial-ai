@@ -3,34 +3,40 @@
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.1-green.svg)](https://flask.palletsprojects.com/)
 [![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-purple.svg)](https://github.com/ultralytics/ultralytics)
+[![Groq LLM](https://img.shields.io/badge/Groq-LLM-orange.svg)](https://groq.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An intelligent real-time road damage detection system using YOLOv8 deep learning model with GPS tracking, interactive dashboards, and live camera monitoring for Melbourne & Sydney, Australia.
+An intelligent real-time road damage detection system using YOLOv8 deep learning model with GPS tracking, interactive dashboards, AI chatbot assistant, and live camera monitoring.
 
 ![Dashboard Preview](https://via.placeholder.com/800x400/667eea/ffffff?text=Road+Damage+Detection+Dashboard)
 
 ## 🌟 Features
 
 ### 🎯 Core Functionality
-- **Real-time Pothole & Crack Detection** - YOLOv8-based AI model with 70%+ accuracy
-- **Live Dashcam Mode** - Automatic detection with 3-second cooldown
+- **Real-time Pothole & Crack Detection** - YOLOv8-based AI model with 92%+ accuracy
+- **Live Dashcam Mode** - Automatic detection with 5-second cooldown
 - **Image Upload Detection** - Batch processing with drag-and-drop support
 - **GPS Location Tracking** - Automatic geolocation with IP fallback
 - **CSV Data Logging** - Comprehensive detection records with timestamps
 
+### 🤖 AI Chatbot Assistant
+- **Natural Language Queries** - Ask questions about detections in plain English
+- **Report Generation** - Get instant statistics and summaries
+- **Route Planning** - Calculate shortest repair paths
+- **Risk Filtering** - Filter by high/medium/low severity
+- **Repair Tracking** - Mark issues as fixed and track history
+
 ### 📊 Interactive Dashboard
 - **Real-time Analytics** - Total detections, potholes, cracks, confidence metrics
-- **Interactive Google Maps** - Color-coded markers (🔴 Potholes, 🟠 Cracks)
-- **Severity Indicators** - High/Medium/Low severity badges
-- **Trend Charts** - 30-day detection trends with Chart.js
+- **Interactive Leaflet Maps** - Color-coded markers (🔴 High Risk, 🟡 Medium, 🟢 Low)
+- **Dark Theme UI** - Modern glass-morphism design
+- **Trend Charts** - Detection trends with Chart.js
 - **Detection Feed** - Real-time recent detections with full details
-- **Multi-City Support** - Melbourne & Sydney coverage
 
 ### 🗺️ Location Features
 - **Browser GPS** - Precise location via `navigator.geolocation`
 - **IP Geolocation Fallback** - Automatic location when GPS unavailable
-- **Google Maps Integration** - Direct navigation to damage locations
-- **Location Clustering** - Unique location identification
+- **Map Integration** - Direct navigation to damage locations
 
 ## 🚀 Quick Start
 
@@ -45,8 +51,8 @@ Modern web browser with GPS support
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/pothole-detection.git
-cd pothole-detection
+git clone https://github.com/HasanNayon/geospatial-ai.git
+cd geospatial-ai
 ```
 
 2. **Create virtual environment**
