@@ -1,4 +1,6 @@
 # LLM Assistant functions using Groq API
+# Provides AI chatbot capabilities for the Pothole Detection System
+# Author: Hasan Nayon
 
 import re
 import requests
