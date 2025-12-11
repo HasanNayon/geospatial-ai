@@ -1,4 +1,6 @@
 # Utility functions for the Pothole Detection System
+# Includes distance calculation, path finding, and geolocation
+# Author: Hasan Nayon
 
 import math
 import requests
